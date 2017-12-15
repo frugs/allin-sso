@@ -1,0 +1,48 @@
+body {
+  background: radial-gradient(circle farthest-corner at top, #f0f0f0 5em, #c6c6c6 60em);
+  text-align: center;
+  min-height: 100vh;
+  display: inline-block;
+  min-width: 100vw;
+  font-family: sans-serif;
+}
+
+.logo {
+  height: 10em;
+}
+
+.heading {
+  padding: 20px;
+  color: black;
+}
+
+.discord-login-button {
+  background-color: rgb(114, 137, 218);
+  border: none;
+  color: white;
+  padding: 15px 15px;
+  border-radius: 5px;
+  min-width: 40vw;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.5em;
+  font-family: Whitney-Semibold;
+  transition-duration: 0.4s;
+}
+
+.discord-login-button:hover {
+  background-color: rgb(102, 123, 196);
+  color: white;
+}
+
+.discord-login-logo {
+  max-height: 2em;
+  vertical-align: middle;
+}
+
+@font-face {
+  font-family: "Whitney-Semibold";
+  src: url("https://discordapp.com/assets/877ef48bf9fcfee590f0ba64de101b59.woff") format("woff");
+}
