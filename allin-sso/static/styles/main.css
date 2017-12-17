@@ -2,9 +2,10 @@ body {
   background: radial-gradient(circle farthest-corner at top, #f0f0f0 5em, #c6c6c6 60em);
   text-align: center;
   min-height: 100vh;
-  display: inline-block;
-  min-width: 100vw;
+  display: block;
   font-family: sans-serif;
+  padding: 1em;
+  font-size: 1.2em;
 }
 
 .logo {
@@ -33,7 +34,7 @@ body {
 }
 
 .discord-login-button:hover {
-  background-color: rgb(102, 123, 196);
+  background-color: rgb(126, 151, 216);
   color: white;
 }
 
