@@ -18,12 +18,13 @@ DISCORD_CALLBACK_URL = os.getenv("DISCORD_CALLBACK_URL")
 DEFAULT_REDIRECT_PATH = os.getenv("DEFAULT_REDIRECT_PATH")
 
 
-DISCORD = aioauth_client.OAuth2Client(
-    DISCORD_CLIENT_KEY,
-    DISCORD_CLIENT_SECRET,
-    base_url='https://discordapp.com/api/v6/',
-    access_token_url='https://discordapp.com/api/oauth2/token',
-    authorize_url='https://discordapp.com/api/oauth2/authorize')
+def discord():
+    return aioauth_client.OAuth2Client(
+        DISCORD_CLIENT_KEY,
+        DISCORD_CLIENT_SECRET,
+        base_url='https://discordapp.com/api/v6/',
+        access_token_url='https://discordapp.com/api/oauth2/token',
+        authorize_url='https://discordapp.com/api/oauth2/authorize')
 
 
 def discord_auth_headers(access_token: str) -> dict:
@@ -31,13 +32,15 @@ def discord_auth_headers(access_token: str) -> dict:
 
 
 async def do_discord_refresh_token(refresh_token: str) -> dict:
-    resp = await DISCORD.request(
+    discord_client = discord()
+
+    resp = await discord_client.request(
         "POST",
-        DISCORD.access_token_url,
+        discord_client.access_token_url,
         data={
             'grant_type': 'refresh_token',
-            'client_id': DISCORD.client_id,
-            'client_secret': DISCORD.client_secret,
+            'client_id': discord_client.client_id,
+            'client_secret': discord_client.client_secret,
             'refresh_token': refresh_token,
         }
     )
@@ -70,7 +73,7 @@ async def discord_login(_: aiohttp.web.Request) -> aiohttp.web.Response:
         'response_type': 'code',
         'redirect_uri': DISCORD_CALLBACK_URL
     }
-    return aiohttp.web.HTTPFound(DISCORD.get_authorize_url(**params))
+    return aiohttp.web.HTTPFound(discord().get_authorize_url(**params))
 
 
 async def discord_signout(request: aiohttp.web.Request) -> aiohttp.web.Response:
@@ -86,7 +89,7 @@ async def discord_authorised(request: aiohttp.web.Request) -> aiohttp.web.Respon
     if code is None:
         return aiohttp.web.HTTPFound('index')
 
-    access_token, data = await DISCORD.get_access_token(code, redirect_uri=DISCORD_CALLBACK_URL)
+    access_token, data = await discord().get_access_token(code, redirect_uri=DISCORD_CALLBACK_URL)
 
     session = await aiohttp_session.get_session(request)
     session['discord_refresh_token'] = data['refresh_token']
