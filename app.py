@@ -69,7 +69,7 @@ async def index(request: aiohttp.web.Request) -> Union[dict, aiohttp.web.Respons
 async def discord_login(_: aiohttp.web.Request) -> aiohttp.web.Response:
     """This is the endpoint for commencing authorisation using discord"""
     params = {
-        'scope': 'identify',
+        'scope': 'identify connections',
         'response_type': 'code',
         'redirect_uri': DISCORD_CALLBACK_URL
     }
