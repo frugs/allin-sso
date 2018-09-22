@@ -105,12 +105,15 @@ def discord_authorised():
     return flask.redirect(POST_LOGIN_REDIRECT_PATH)
 
 
-@app.route("/discord-refresh-token")
+@app.route("/discord-refresh-token", methods=["POST"])
 def discord_refresh_token():
     """Endpoint for refreshing discord access token"""
 
+    if not flask.request.is_json:
+        return "Bad request", 400
+
     access_token, refresh_token = do_discord_refresh_token(
-        flask.session.get("discord_refresh_token", ""))
+        flask.request.json.get("discord_refresh_token", ""))
 
     return flask.jsonify({
         "discord_access_token": access_token,
