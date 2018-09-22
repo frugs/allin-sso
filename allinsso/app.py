@@ -1,4 +1,6 @@
 """This is the single sign-on app"""
+from typing import Tuple
+
 import flask
 import flask_oauthlib.client
 
@@ -40,7 +42,7 @@ def discord_auth_headers(access_token: str) -> dict:
     return {"Authorization": "Bearer " + access_token}
 
 
-def do_discord_refresh_token(refresh_token: str):
+def do_discord_refresh_token(refresh_token: str) -> Tuple[str, str]:
     resp = discord.post(
         discord.access_token_url,
         token="token",
@@ -53,20 +55,22 @@ def do_discord_refresh_token(refresh_token: str):
         })
 
     if resp.status == 200:
-        flask.session["discord_access_token"] = resp.data.get("access_token", "")
-        flask.session["discord_refresh_token"] = resp.data.get("refresh_token", "")
+        return resp.data.get("access_token", ""), resp.data.get("refresh_token", "")
     else:
-        flask.session.pop("discord_access_token", None)
-        flask.session.pop("discord_refresh_token", None)
+        return "", ""
 
 
 @app.route("/")
 def index():
     """This is the main landing page for the app"""
 
-    do_discord_refresh_token(flask.session.get("discord_refresh_token", ""))
+    access_token, refresh_token = do_discord_refresh_token(
+        flask.session.get("discord_refresh_token", ""))
 
-    if flask.session.get("discord_access_token", None):
+    if refresh_token:
+        flask.session["discord_refresh_token"] = refresh_token
+
+    if access_token:
         return flask.redirect(POST_LOGIN_REDIRECT_PATH)
     else:
         return flask.render_template("index.html.j2")
@@ -105,4 +109,10 @@ def discord_authorised():
 def discord_refresh_token():
     """Endpoint for refreshing discord access token"""
 
-    do_discord_refresh_token(flask.session.get("discord_refresh_token", ""))
+    access_token, refresh_token = do_discord_refresh_token(
+        flask.session.get("discord_refresh_token", ""))
+
+    return flask.jsonify({
+        "discord_access_token": access_token,
+        "discord_refresh_token": refresh_token
+    })
