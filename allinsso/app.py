@@ -80,7 +80,9 @@ def index():
 def discord_login():
     """This is the endpoint for commencing authorisation using discord"""
 
-    return discord.authorize(callback=flask.url_for(discord_authorised.__name__, _external=True))
+    return discord.authorize(
+        callback=flask.url_for(
+            discord_authorised.__name__, _external=True, _scheme=flask.request.scheme))
 
 
 @app.route("/discord-signout")
