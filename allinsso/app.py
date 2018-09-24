@@ -45,7 +45,7 @@ def discord_login():
 
     return discord.authorize(
         callback=flask.url_for(
-            discord_authorised.__name__, _external=True, _scheme=flask.request.scheme))
+            discord_authorised.__name__, _external=True, _scheme="https"))
 
 
 @app.route("/discord-signout")
