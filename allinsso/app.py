@@ -1,14 +1,16 @@
 """This is the single sign-on app"""
 
+import secrets
 import flask
 import flask_oauthlib.client
 from google.cloud import datastore
 
 from .discordoauth import refresh_discord_token, create_discord_remote_app
 
+datastore_client = datastore.Client()
+
 
 def retrieve_config_value(key: str) -> str:
-    datastore_client = datastore.Client()
     return datastore_client.get(datastore_client.key("Config", key))["value"]
 
 
@@ -43,11 +45,16 @@ def index():
 @app.route("/discord-login")
 def discord_login():
     """This is the endpoint for commencing authorisation using discord"""
+    state_key = secrets.token_urlsafe(32)
+    redirect_url = flask.request.args.get("redirect_url")
+    if redirect_url:
+        flask.session[state_key] = {"redirect_url": redirect_url}
 
     return discord.authorize(
         callback=flask.url_for(
             discord_authorised.__name__, _external=True, _scheme="https"
-        )
+        ),
+        state=state_key
     )
 
 
@@ -70,4 +77,7 @@ def discord_authorised():
     flask.session["discord_access_token"] = resp["access_token"]
     flask.session["discord_refresh_token"] = resp["refresh_token"]
 
-    return flask.redirect(POST_LOGIN_REDIRECT_PATH)
+    state_key = flask.request.args.get("state")
+    state = flask.session.pop(state_key, {})
+    redirect_url = state.get("redirect_url", POST_LOGIN_REDIRECT_PATH)
+    return flask.redirect(redirect_url)
