@@ -25,6 +25,7 @@ oauth = flask_oauthlib.client.OAuth(app)
 
 discord = create_discord_remote_app(oauth, DISCORD_CLIENT_KEY, DISCORD_CLIENT_SECRET)
 
+
 def discord_auth_headers(access_token: str) -> dict:
     return {"Authorization": "Bearer " + access_token}
 
@@ -45,14 +46,16 @@ def discord_login():
 
     return discord.authorize(
         callback=flask.url_for(
-            discord_authorised.__name__, _external=True, _scheme="https"))
+            discord_authorised.__name__, _external=True, _scheme="https"
+        )
+    )
 
 
 @app.route("/discord-signout")
 def discord_signout():
     """Clears access token from session"""
 
-    flask.session.pop('discord_refresh_token', None)
+    flask.session.pop("discord_refresh_token", None)
     return flask.redirect(flask.url_for(index.__name__))
 
 
@@ -61,7 +64,7 @@ def discord_authorised():
     """This is the endpoint for the oauth2 callback for discord"""
 
     resp = discord.authorized_response()
-    if resp is None or resp.get('access_token') is None:
+    if resp is None or resp.get("access_token") is None:
         return "Login failed", 401
 
     flask.session["discord_access_token"] = resp["access_token"]
